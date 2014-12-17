@@ -5,6 +5,15 @@ import string
 import copy
 
 
+def unitconversebool(ulist):
+    """
+    判断单位是否可以换算
+    """
+    for i in range(len(ulist)-1):
+        if ulist[i].find(ulist[i+1]) == -1 and ulist[i+1].find(ulist[i]):
+            return False
+    return True
+    
 def stofdict(slist):
     """
     根据传入的字符串序列，生成与字符串序列相对应的 浮点数 - 字符串 词典
@@ -15,7 +24,6 @@ def stofdict(slist):
         result[flist[i]] = slist[i]
     return result
         
-        
 def max_num(slist):
     """
     传入数据形字符串，获得数值最大的字符串
@@ -24,9 +32,6 @@ def max_num(slist):
     maxnum = max(flist)
     d = stofdict(slist)
     return d[maxnum]
-    
-    
-
 
 def strltofl(strlist):
     """
@@ -100,23 +105,17 @@ def one2one(d):
     else:
         return True
             
-    
     s = set(v)
     if len(s) < len(v):
         return False
     else:
         return True
-    #for k,v in d.iteritems():
-    #    if len(v) >= 2:
-    #        return False
-    #return True
     
 
 class StatisticalDataCleaning():
     """
-    
+    统计数据清洗
     """
-    
     infilename = "data.txt"
     dictfilename = "instr_indicator_dict.txt"
     outfilename = "result.txt"
@@ -196,7 +195,10 @@ class StatisticalDataCleaning():
         """
         数据清洗主程序
         """
+        #存储处理结果
         result_str = ""
+        #存储需要以后处理“单位”的处理结果
+        unit_result_str = ""
         #指标与对应信息词典
         data_dict = {}
         data = self.loaddata(filename = self.normindatafilename)
@@ -213,16 +215,12 @@ class StatisticalDataCleaning():
             elif line != "":
                 data_dict[line[0]].append(line[1])
         print "共读入指标数据 ",counter," 条","需要处理指标 :",len(data_dict)," 个"
-        #
-        #
-        #for k,v in data_dict.iteritems():
-        #    print "dict[%s] = " %k,v
-        
+      
         counter = 0
         for indicator,indi_meta in data_dict.iteritems():
             counter += 1
-            print indicator
-            if counter % 500 == 0:
+            #print indicator
+            if counter % 1000 == 0:
                 print "正在处理第 ",counter," 条指标"
             if len(indi_meta) <= 1:
                 #print indicator,string.join(indi_meta.pop())
@@ -315,41 +313,52 @@ class StatisticalDataCleaning():
                             if samelevel(num_list):
                                 norm_num = max_num(num_list)
                                 norm_unit = num_unit_dict[norm_num][0]
-                            #norm_yearbook = numunit_yearbook_dict[norm_num + "\t" + norm_unit]
                             else:
-                                #修正单位
-                                norm_num  = clustering(num_list)
-                                norm_unit = clustering_unit(unit_list) 
+                                #输出，留作以后确定标准单位
+                                for num_tmp in num_list:
+                                    unit_tmp = num_unit_dict[num_tmp][0]
+                                    unit_result_str += indicator + "\t" + year_area + "\t" + num_tmp + "\t" + \
+                                    unit_tmp + "\t" + numunit_yearbook_dict[num_tmp + "\t" + unit_tmp] + "\n"
+                                continue 
                                 
                         else:
+                            unit_converse_flag = True
                             norm_num  = clustering(num_list)
                             norm_unit = clustering_unit(unit_list)
                             #查找最佳数据输出
                             for yam_item in year_area_meta:
                                 if yam_item[0] == norm_num and yam_item[1] == norm_unit:
                                     norm_yearbook = yam_item[2]
+                                    unit_converse_flag = False
                                     break
                                 else:
                                     #修正单位或数值
                                     pass
+                            if unit_converse_flag == True:
+                                for num_tmp in num_list:
+                                    unit_tmp = num_unit_dict[num_tmp][0]
+                                    unit_result_str += indicator + "\t" + year_area + "\t" + num_tmp + "\t" + \
+                                    unit_tmp + "\t" + numunit_yearbook_dict[num_tmp + "\t" + unit_tmp] + "\n"
+                                continue
+        
                         norm_yearbook = numunit_yearbook_dict[norm_num + "\t" + norm_unit]
                         pstr =  indicator + "\t" + year_area + "\t" + norm_num + "\t" +  norm_unit + "\t" + norm_yearbook
                         result_str += pstr + "\n"
         fout = open("Cleaning_Result.txt",'w')
         fout.write(result_str)
-        fout.close()        
-                
-                
-                
+        fout.close()  
         
+        fout = open("Unit_Result.txt",'w')
+        fout.write(unit_result_str)
+        fout.close()      
+                
     def go(self):
         """
-        
+        调用函数
         """
         #self.instr_index()
         self.cleaning()
         
-
 if __name__ == "__main__":
     sdc = StatisticalDataCleaning()
     sdc.go()
