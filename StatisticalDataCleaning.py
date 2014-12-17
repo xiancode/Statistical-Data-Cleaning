@@ -49,7 +49,6 @@ def samelevel(data_list):
     if dlist[-1]/dlist[0] >= 10:
         return False
     return True
-    
 
 def clustering(clist):
     """
@@ -110,7 +109,6 @@ def one2one(d):
         return False
     else:
         return True
-    
 
 class StatisticalDataCleaning():
     """
@@ -332,8 +330,8 @@ class StatisticalDataCleaning():
                                     unit_converse_flag = False
                                     break
                                 else:
-                                    #修正单位或数值
                                     pass
+                            #修正单位或数值
                             if unit_converse_flag == True:
                                 for num_tmp in num_list:
                                     unit_tmp = num_unit_dict[num_tmp][0]

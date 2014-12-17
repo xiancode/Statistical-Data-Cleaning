@@ -1,2 +1,11 @@
 .project
 .devpyproject
+/normindex_test.txt
+/instr_indicator_dict.txt
+/data.txt
+/Cleaning_Result.txt
+/normindex_test.txt~
+/octave-workspace
+/result.txt
+/Unit_Result.txt
+/Unit_Cleaning_result.txt
